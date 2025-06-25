@@ -1,23 +1,21 @@
-'use client'; // This directive is necessary for using React hooks
+'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
 import axios from 'axios';
 
-// Define the type for a single To-Do item to match the backend
 interface Todo {
   id: string;
   task: string;
   completed: boolean;
 }
 
-// The base URL of our FastAPI backend
+// ✅ Backend-пен байланыс: FastAPI 8000 портта жұмыс істеп тұр
 const API_URL = 'http://localhost:8000/api/todos';
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTask, setNewTask] = useState('');
 
-  // 1. Fetch all todos from the backend when the component mounts
   useEffect(() => {
     const fetchTodos = async () => {
       try {
@@ -28,37 +26,34 @@ export default function Home() {
       }
     };
     fetchTodos();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
-  // 2. Handle form submission to add a new task
   const handleAddTask = async (e: FormEvent) => {
-    e.preventDefault(); // Prevent page reload
-    if (!newTask.trim()) return; // Don't add empty tasks
+    e.preventDefault();
+    if (!newTask.trim()) return;
 
     try {
       const response = await axios.post(API_URL, { task: newTask });
-      setTodos([...todos, response.data]); // Add new task to the list
-      setNewTask(''); // Clear the input field
+      setTodos([...todos, response.data]);
+      setNewTask('');
     } catch (error) {
       console.error('Error adding task:', error);
     }
   };
 
-  // 3. Handle toggling the completed status of a task
   const handleToggleComplete = async (id: string) => {
     try {
-      const response = await axios.patch(`<span class="math-inline">\{API\_URL\}/</span>{id}`);
+      const response = await axios.patch(`${API_URL}/${id}`);
       setTodos(todos.map(todo => (todo.id === id ? response.data : todo)));
     } catch (error) {
       console.error('Error updating task:', error);
     }
   };
 
-  // 4. Handle deleting a task
   const handleDeleteTask = async (id: string) => {
     try {
-      await axios.delete(`<span class="math-inline">\{API\_URL\}/</span>{id}`);
-      setTodos(todos.filter(todo => todo.id !== id)); // Remove task from the list
+      await axios.delete(`${API_URL}/${id}`);
+      setTodos(todos.filter(todo => todo.id !== id));
     } catch (error) {
       console.error('Error deleting task:', error);
     }
@@ -71,7 +66,6 @@ export default function Home() {
           Full-Stack To-Do List
         </h1>
 
-        {/* Form to add a new task */}
         <form onSubmit={handleAddTask} className="flex gap-2 mb-6">
           <input
             type="text"
@@ -88,7 +82,6 @@ export default function Home() {
           </button>
         </form>
 
-        {/* List of tasks */}
         <ul className="space-y-3">
           {todos.map((todo) => (
             <li
